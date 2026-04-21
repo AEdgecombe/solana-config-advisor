@@ -1,0 +1,23 @@
+* 4c9178d Typo fix
+* fa06637 Fixing render delay on data
+* 0004114 Updated the README.md file
+* 687ddbe Updated README
+*   4cf77d3 Resolve merge conflicts by accepting refactor branch changes
+|\  
+| * acb0512 Code Refactor
+* | 8ac57ee Add automated testing suites with Jest and Vitest
+|/  
+* e8b07c0 Removing typo
+* 65c8947 Text readability
+* 9c9f43b Mobile UI design
+* 2f6441a Hosting application
+* c42a7f1 Add Mongoose and Atlas connection
+* 57d6000 Code refactor, better readability for styling of components
+* 74c907d Removing old designs
+* 3cf4008 Added light/dark mode, rebrand of project name
+* 3210995 Redesign of UI, Added extra features to RPCDoctor and ConfigAdvisor, New README.md
+* 4d40b22 Building more RPC Doctor and other tweaks
+* 08e26cc Readme first edition
+* 158b41a Building UI
+* c7431c1 Initialise MERN skeleton and project structure
+* c86b97a Project Initiation
