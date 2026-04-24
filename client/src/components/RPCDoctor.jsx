@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Activity, Server, StopCircle, PlayCircle, Download, Shield, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { Activity, Server, StopCircle, PlayCircle, Download, Shield, ShieldCheck, ShieldAlert, Loader2 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const STYLE = {
@@ -58,6 +58,7 @@ const RPCDoctor = () => {
   const [error, setError] = useState(null);
   
   const [isMonitoring, setIsMonitoring] = useState(false);
+  const [isInitialising, setIsInitialising] = useState(false);
   
   const [isAuditing, setIsAuditing] = useState(false);
   const [auditData, setAuditData] = useState(null);
@@ -71,14 +72,12 @@ const RPCDoctor = () => {
     rpcUrlRef.current = rpcUrl; 
   }, [rpcUrl]);
 
-  // Clean up interval entirely if the component unmounts
   useEffect(() => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, []);
 
-  // Reset state and kill polling if the user changes the URL
   useEffect(() => { 
     setLatencyHistory([]); 
     setCurrentResult(null); 
@@ -87,6 +86,7 @@ const RPCDoctor = () => {
     setAuditData(null); 
     setAuditError(null); 
     setIsMonitoring(false);
+    setIsInitialising(false);
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
@@ -118,6 +118,7 @@ const RPCDoctor = () => {
 
       setCurrentResult(customData); 
       setMainnetResult(mainnetData);
+      setIsInitialising(false);
 
       setLatencyHistory((prev) => {
         const newEntry = { 
@@ -131,6 +132,7 @@ const RPCDoctor = () => {
     } catch (err) { 
       setError(err.message); 
       setIsMonitoring(false); 
+      setIsInitialising(false);
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
@@ -138,16 +140,18 @@ const RPCDoctor = () => {
     }
   };
 
-  // Dedicated handler to manually start and stop the polling
+
   const toggleMonitoring = () => {
     if (isMonitoring) {
       setIsMonitoring(false);
+      setIsInitialising(false);
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
     } else {
       setIsMonitoring(true);
+      setIsInitialising(true);
       runDiagnostics(); 
       intervalRef.current = setInterval(runDiagnostics, 3000);
     }
@@ -260,7 +264,16 @@ const RPCDoctor = () => {
 
       {error && <div className={STYLE.error}>{error}</div>}
 
-      {currentResult && (
+      {isInitialising && !currentResult && (
+        <div className="flex flex-col items-center justify-center p-16 animate-in fade-in duration-500">
+          <Loader2 className="animate-spin mb-6 text-cyan-600 dark:text-cyan-400" size={36} strokeWidth={1.5} />
+          <p className="text-[10px] text-slate-500 dark:text-white/40 uppercase tracking-[0.3em] font-light">
+            Establishing secure connection...
+          </p>
+        </div>
+      )}
+
+      {currentResult && !isInitialising && (
         <div className="animate-in fade-in duration-1000 slide-in-from-bottom-4">
           
           <div className={STYLE.metricGrid}>
