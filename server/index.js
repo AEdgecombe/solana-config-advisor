@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const net = require('net');
 const rateLimit = require('express-rate-limit');
-const mongoose = require('mongoose');
 require('dotenv').config();
 
 const app = express();
@@ -11,16 +10,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Database initialisation
-if (process.env.MONGO_URI) {
-  mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('Connected to MongoDB Atlas Database'))
-    .catch((err) => console.error('Database connection error:', err));
-} else {
-  console.warn('Warning: No MONGO_URI found in environment variables');
-}
 
-// Rate limiting configurations
 const rpcLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 30, 
@@ -37,14 +27,7 @@ const auditLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// Helper function to keep the RPC fetch logic DRY
-const buildRpcPayload = (id, method) => ({
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ jsonrpc: '2.0', id, method })
-});
 
-// Application Routes
 app.get('/api/health', (req, res) => {
   res.json({ status: 'success', message: 'API Online' });
 });
@@ -148,10 +131,4 @@ app.post('/api/audit', auditLimiter, async (req, res) => {
   }
 });
 
-// Only start the server if we are NOT running tests
-if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-}
-
-// Export the app so Supertest can use it
-module.exports = app;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
