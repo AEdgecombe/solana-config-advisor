@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const net = require('net');
 const rateLimit = require('express-rate-limit');
-const mongoose = require('mongoose'); // <-- 1. Added Mongoose
 require('dotenv').config();
 
 const app = express();
@@ -11,21 +10,6 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// ==========================================
-// 🗄️ DATABASE CONNECTION
-// ==========================================
-// This looks at your .env file and connects to Atlas securely
-if (process.env.MONGO_URI) {
-  mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('✅ Connected to MongoDB Atlas Database'))
-    .catch((err) => console.error('❌ Database connection error:', err));
-} else {
-  console.warn('⚠️ WARNING: No MONGO_URI found in .env file');
-}
-
-// ==========================================
-// 🛡️ SECURITY & THROTTLING
-// ==========================================
 const rpcLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 30, 
@@ -42,9 +26,6 @@ const auditLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// ==========================================
-// 🚦 API ROUTES
-// ==========================================
 app.get('/api/health', (req, res) => {
   res.json({ status: 'success', message: 'API Online' });
 });
@@ -115,4 +96,4 @@ app.post('/api/audit', auditLimiter, async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
