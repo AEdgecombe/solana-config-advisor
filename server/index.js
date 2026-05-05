@@ -33,7 +33,30 @@ const resolveSafeIp = async (host) => {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+const DEFAULT_ALLOWED_ORIGINS = [
+  'https://solana-config-advisor.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    const whitelist = allowedOrigins.length ? allowedOrigins : DEFAULT_ALLOWED_ORIGINS;
+    if (!origin || whitelist.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type']
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 const rpcLimiter = rateLimit({
