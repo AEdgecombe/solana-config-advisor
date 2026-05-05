@@ -17,7 +17,7 @@ const STYLE = {
   btnSubtitle: "text-[10px] text-slate-500 dark:text-white/40 tracking-wider mt-2"
 };
 
-// Configuration dictionary isolating the theme differences between cards
+
 const CARD_VARIANTS = {
   procurement: {
     gradient: "bg-gradient-to-b from-slate-200 to-slate-100 dark:from-white/20 dark:to-white/5 hover:from-violet-400/50 hover:to-cyan-400/50 dark:hover:from-violet-500/50 dark:hover:to-cyan-500/50",
