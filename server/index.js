@@ -19,6 +19,8 @@ const BLOCKED_RANGES = [
 
 const VALID_HOST_PATTERN = /^(\d{1,3}\.){3}\d{1,3}$|^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
 
+const PORT_PROBE_TIMEOUT_MS = 3000;
+
 const isBlockedIP = (ip) => BLOCKED_RANGES.some((range) => range.test(ip));
 
 const resolveSafeIp = async (host) => {
@@ -127,22 +129,23 @@ app.post('/api/audit', auditLimiter, async (req, res) => {
   const checkPort = (port, host) => {
     return new Promise((resolve) => {
       const socket = new net.Socket();
-      socket.setTimeout(1500);
-      
-      socket.on('connect', () => { 
-        socket.destroy(); 
-        resolve({ port, status: 'OPEN', vulnerable: true }); 
+      socket.setTimeout(PORT_PROBE_TIMEOUT_MS);
+
+      socket.on('connect', () => {
+        socket.destroy();
+        resolve({ port, status: 'OPEN', vulnerable: true });
       });
-      
-      socket.on('timeout', () => { 
-        socket.destroy(); 
-        resolve({ port, status: 'FILTERED', vulnerable: false }); 
+
+      socket.on('timeout', () => {
+        socket.destroy();
+        resolve({ port, status: 'FILTERED', vulnerable: false });
       });
-      
-      socket.on('error', () => { 
-        resolve({ port, status: 'CLOSED', vulnerable: false }); 
+
+      socket.on('error', () => {
+        socket.destroy();
+        resolve({ port, status: 'CLOSED', vulnerable: false });
       });
-      
+
       socket.connect(port, host);
     });
   };
