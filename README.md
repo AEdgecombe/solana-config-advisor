@@ -93,4 +93,4 @@ Nodex is a React + Express + Node.js application. Because the auditor opens TCP 
 
 ## Deployment
 
-The frontend is built into static assets and distributed globally via the Vercel CDN. The Node.js API gateway runs as a long-lived web service on Render. The backend is fully stateless — sensitive node telemetry is never persisted — and the two tiers are decoupled so each can scale and redeploy independently.
+The frontend is built into static assets and distributed globally via the Vercel CDN. The Node.js API gateway runs as a long-lived web service on Render. The backend is fully stateless, sensitive node telemetry is never persisted, and the two tiers are decoupled so each can scale and redeploy independently.
