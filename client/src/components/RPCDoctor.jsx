@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import PropTypes from 'prop-types';
 import { Activity, Server, StopCircle, PlayCircle, Download, Shield, ShieldCheck, ShieldAlert, Loader2 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
@@ -35,6 +36,12 @@ const TelemetryMetric = ({ label, value, colorClass }) => (
   </div>
 );
 
+TelemetryMetric.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  colorClass: PropTypes.string
+};
+
 const PortCard = ({ port }) => (
   <div className={STYLE.portCard}>
     <div className="flex justify-between items-center mb-2">
@@ -50,6 +57,14 @@ const PortCard = ({ port }) => (
     </p>
   </div>
 );
+
+PortCard.propTypes = {
+  port: PropTypes.shape({
+    port: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+    status: PropTypes.string.isRequired
+  }).isRequired
+};
 
 const RPCDoctor = () => {
   const [rpcUrl, setRpcUrl] = useState('https://api.testnet.solana.com');

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Server, Activity } from 'lucide-react';
 
 const STYLE = {
@@ -48,6 +49,14 @@ const NavigationCard = ({ title, subtitle, icon: Icon, variantKey, onClick }) =>
   );
 };
 
+NavigationCard.propTypes = {
+  title: PropTypes.string.isRequired,
+  subtitle: PropTypes.string.isRequired,
+  icon: PropTypes.elementType.isRequired,
+  variantKey: PropTypes.oneOf(['procurement', 'telemetry']).isRequired,
+  onClick: PropTypes.func.isRequired
+};
+
 const LandingPage = ({ scrollTo }) => {
   return (
     <div className={STYLE.container}>
@@ -85,6 +94,10 @@ const LandingPage = ({ scrollTo }) => {
 
     </div>
   );
+};
+
+LandingPage.propTypes = {
+  scrollTo: PropTypes.func.isRequired
 };
 
 export default LandingPage;

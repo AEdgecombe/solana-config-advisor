@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { Cpu, HardDrive, MemoryStick, Cloud, Server, Download } from 'lucide-react';
 
 const STYLE = {
@@ -41,6 +42,15 @@ const MetricCard = ({ icon: Icon, layer, res }) => {
       </p>
     </div>
   );
+};
+
+MetricCard.propTypes = {
+  icon: PropTypes.elementType.isRequired,
+  layer: PropTypes.string.isRequired,
+  res: PropTypes.shape({
+    status: PropTypes.string.isRequired,
+    message: PropTypes.string.isRequired
+  }).isRequired
 };
 
 const ConfigAdvisor = () => {
