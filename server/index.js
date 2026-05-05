@@ -1,8 +1,31 @@
 const express = require('express');
 const cors = require('cors');
 const net = require('net');
+const dns = require('dns').promises;
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
+
+const BLOCKED_RANGES = [
+  /^127\./,                          // loopback
+  /^10\./,                           // RFC1918 private
+  /^172\.(1[6-9]|2[0-9]|3[01])\./,   // RFC1918 private
+  /^192\.168\./,                     // RFC1918 private
+  /^169\.254\./,                     // link-local incl. cloud metadata
+  /^0\./,                            // "this" network
+  /^::1$/,                           // IPv6 loopback
+  /^fc00:/i,                         // IPv6 unique local
+  /^fe80:/i,                         // IPv6 link-local
+];
+
+const VALID_HOST_PATTERN = /^(\d{1,3}\.){3}\d{1,3}$|^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+
+const isBlockedIP = (ip) => BLOCKED_RANGES.some((range) => range.test(ip));
+
+const resolveSafeIp = async (host) => {
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) return host;
+  const { address } = await dns.lookup(host);
+  return address;
+};
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -79,9 +102,20 @@ app.post('/api/rpc-doctor', rpcLimiter, async (req, res) => {
 
 app.post('/api/audit', auditLimiter, async (req, res) => {
   const { targetIp } = req.body;
-  
-  if (!targetIp) {
-    return res.status(400).json({ error: 'Target Host is required' });
+
+  if (!targetIp || !VALID_HOST_PATTERN.test(targetIp)) {
+    return res.status(400).json({ error: 'Invalid target address format' });
+  }
+
+  let resolvedIp;
+  try {
+    resolvedIp = await resolveSafeIp(targetIp);
+  } catch (err) {
+    return res.status(400).json({ error: 'Unable to resolve target host' });
+  }
+
+  if (isBlockedIP(resolvedIp)) {
+    return res.status(403).json({ error: 'Target address is not permitted' });
   }
 
   const portsToCheck = [
@@ -116,7 +150,7 @@ app.post('/api/audit', auditLimiter, async (req, res) => {
   try {
     const results = await Promise.all(
       portsToCheck.map(async (p) => {
-        const scanResult = await checkPort(p.port, targetIp);
+        const scanResult = await checkPort(p.port, resolvedIp);
         return { ...p, ...scanResult };
       })
     );
