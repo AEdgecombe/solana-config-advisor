@@ -20,6 +20,7 @@ const BLOCKED_RANGES = [
 const VALID_HOST_PATTERN = /^(\d{1,3}\.){3}\d{1,3}$|^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
 
 const PORT_PROBE_TIMEOUT_MS = 3000;
+const RPC_FETCH_TIMEOUT_MS = 5000;
 
 const isBlockedIP = (ip) => BLOCKED_RANGES.some((range) => range.test(ip));
 
@@ -69,19 +70,24 @@ app.post('/api/rpc-doctor', rpcLimiter, async (req, res) => {
   }
 
   const startTime = Date.now();
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), RPC_FETCH_TIMEOUT_MS);
+  const fetchOpts = { signal: controller.signal };
 
   try {
     const [slotRes, healthRes, versionRes, epochRes] = await Promise.all([
-      fetch(rpcUrl, buildRpcPayload(1, 'getSlot')),
-      fetch(rpcUrl, buildRpcPayload(2, 'getHealth')),
-      fetch(rpcUrl, buildRpcPayload(3, 'getVersion')),
-      fetch(rpcUrl, buildRpcPayload(4, 'getEpochInfo'))
+      fetch(rpcUrl, { ...buildRpcPayload(1, 'getSlot'), ...fetchOpts }),
+      fetch(rpcUrl, { ...buildRpcPayload(2, 'getHealth'), ...fetchOpts }),
+      fetch(rpcUrl, { ...buildRpcPayload(3, 'getVersion'), ...fetchOpts }),
+      fetch(rpcUrl, { ...buildRpcPayload(4, 'getEpochInfo'), ...fetchOpts })
     ]);
 
     const slotData = await slotRes.json();
     const healthData = await healthRes.json();
     const versionData = await versionRes.json();
     const epochData = await epochRes.json();
+
+    clearTimeout(timeoutId);
 
     res.json({
       status: healthData.result === 'ok' ? 'Healthy' : 'Degraded',
@@ -93,11 +99,20 @@ app.post('/api/rpc-doctor', rpcLimiter, async (req, res) => {
       message: 'Diagnostics completed.'
     });
   } catch (error) {
-    res.status(500).json({ 
-      status: 'Offline', 
-      slot: null, 
-      latency: Date.now() - startTime, 
-      error: 'Failed to connect to endpoint.' 
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      return res.status(504).json({
+        status: 'Offline',
+        slot: null,
+        latency: Date.now() - startTime,
+        error: 'RPC endpoint timed out.'
+      });
+    }
+    res.status(502).json({
+      status: 'Offline',
+      slot: null,
+      latency: Date.now() - startTime,
+      error: 'Failed to connect to endpoint.'
     });
   }
 });
