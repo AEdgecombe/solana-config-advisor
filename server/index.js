@@ -82,7 +82,7 @@ const buildRpcPayload = (id, method) => ({
 });
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'success', message: 'API Online' });
+  res.status(200).json({ status: 'ok', timestamp: Date.now() });
 });
 
 app.post('/api/rpc-doctor', rpcLimiter, async (req, res) => {

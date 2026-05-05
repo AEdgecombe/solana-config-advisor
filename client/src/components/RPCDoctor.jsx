@@ -21,6 +21,7 @@ const STYLE = {
   auditBox: "bg-white/40 dark:bg-white/[0.01] p-8 rounded-[2rem] border border-slate-200 dark:border-white/[0.05] mt-8",
   auditBtnReady: "bg-violet-100 hover:bg-violet-200 text-violet-700 border-violet-300 shadow-sm dark:bg-violet-500/10 dark:hover:bg-violet-500/20 dark:text-violet-300 dark:border-violet-500/30 dark:hover:shadow-[0_0_15px_rgba(139,92,246,0.2)]",
   auditBtnWait: "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed dark:bg-white/5 dark:text-white/30 dark:border-white/5",
+  warmingBanner: "flex items-center gap-3 bg-cyan-50 border border-cyan-200 text-cyan-800 dark:bg-cyan-500/5 dark:border-cyan-500/20 dark:text-cyan-300/80 font-light tracking-wide p-4 rounded-2xl mb-8 text-xs",
   scoreBox: "flex justify-between items-center p-6 bg-slate-100 dark:bg-black/20 rounded-2xl border border-slate-200 dark:border-white/5 mb-6",
   portCard: "bg-white/60 dark:bg-white/[0.02] p-5 rounded-2xl border border-slate-200 dark:border-white/[0.05]",
   portOpen: "bg-violet-100 text-violet-700 border-violet-200 dark:bg-violet-500/10 dark:text-violet-400 dark:border-violet-500/20",
@@ -65,6 +66,8 @@ const RPCDoctor = () => {
   const [auditError, setAuditError] = useState(null);
   const [auditCooldown, setAuditCooldown] = useState(0);
 
+  const [apiReady, setApiReady] = useState(false);
+
   const rpcUrlRef = useRef(rpcUrl);
   const intervalRef = useRef(null);
   
@@ -75,6 +78,31 @@ const RPCDoctor = () => {
   useEffect(() => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    let retryId;
+
+    const ping = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/health`);
+        if (cancelled) return;
+        if (res.ok) {
+          setApiReady(true);
+        } else {
+          retryId = setTimeout(ping, 3000);
+        }
+      } catch {
+        if (!cancelled) retryId = setTimeout(ping, 3000);
+      }
+    };
+
+    ping();
+    return () => {
+      cancelled = true;
+      if (retryId) clearTimeout(retryId);
     };
   }, []);
 
@@ -261,6 +289,13 @@ const RPCDoctor = () => {
           )}
         </button>
       </div>
+
+      {!apiReady && (
+        <div className={STYLE.warmingBanner}>
+          <Loader2 className="animate-spin" size={14} strokeWidth={1.5} />
+          <span>Connecting to diagnostic server. First request may take up to 50 seconds while the host wakes from idle.</span>
+        </div>
+      )}
 
       {error && <div className={STYLE.error}>{error}</div>}
 
