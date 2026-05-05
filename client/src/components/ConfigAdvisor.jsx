@@ -20,7 +20,6 @@ const STYLE = {
   exportBtn: "flex items-center gap-3 bg-slate-100 dark:bg-white/[0.02] hover:bg-slate-200 dark:hover:bg-white/[0.05] text-slate-700 dark:text-white/50 dark:hover:text-white px-6 py-3 rounded-full text-[10px] uppercase tracking-[0.2em] border border-slate-300 dark:border-white/10 transition-all"
 };
 
-// Abstracted sub component for cleaner JSX layout
 const MetricCard = ({ icon: Icon, layer, res }) => {
   const isOptimal = res.status === 'Optimal';
   const badgeStyles = isOptimal
