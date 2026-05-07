@@ -94,3 +94,19 @@ Nodex is a React + Express + Node.js application. Because the auditor opens TCP 
 ## Deployment
 
 The frontend is built into static assets and distributed globally via the Vercel CDN. The Node.js API gateway runs as a long-lived web service on Render. The backend is fully stateless, sensitive node telemetry is never persisted, and the two tiers are decoupled so each can scale and redeploy independently.
+
+<br>
+
+## Contributing
+
+Nodex is a final-year university project, but it is MIT licensed and open to outside contributions. A few ways to get involved:
+
+- **Star the repo** if you find it useful — it genuinely helps the project's visibility.
+- **Report bugs or suggest features** via [GitHub Issues](https://github.com/AEdgecombe/Nodex/issues).
+- **Send a pull request:**
+  1. Fork the repo and create a feature branch — `git checkout -b feature/your-idea`.
+  2. Keep changes focused, follow the existing code style, and add tests where it makes sense.
+  3. Run `npm test` in both `client/` and `server/` to confirm nothing regresses.
+  4. Open a PR against `main` with a short description of the change and the motivation.
+
+Forks for personal experimentation are encouraged — the codebase is small enough to be a useful starting point for similar diagnostic tooling, and the MIT license places no restrictions on derivative work.
