@@ -3,6 +3,21 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "description": "React frontend for Nodex — Solana validator diagnostics and telemetry.",
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AEdgecombe/Nodex.git",
+    "directory": "client"
+  },
+  "homepage": "https://github.com/AEdgecombe/Nodex#readme",
+  "bugs": {
+    "url": "https://github.com/AEdgecombe/Nodex/issues"
+  },
+  "author": "Alexander Edgecombe",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
