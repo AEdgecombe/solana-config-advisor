@@ -5,6 +5,7 @@ const dns = require('dns').promises;
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
+// nobody expects the spanish inquisition
 const BLOCKED_RANGES = [
   /^127\./,                          // loopback
   /^10\./,                           // RFC1918 private
