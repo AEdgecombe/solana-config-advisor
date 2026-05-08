@@ -85,6 +85,7 @@ const RPCDoctor = () => {
 
   const rpcUrlRef = useRef(rpcUrl);
   const intervalRef = useRef(null);
+  const cooldownRef = useRef(null);
   
   useEffect(() => { 
     rpcUrlRef.current = rpcUrl; 
@@ -93,6 +94,7 @@ const RPCDoctor = () => {
   useEffect(() => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
+      if (cooldownRef.current) clearInterval(cooldownRef.current);
     };
   }, []);
 
@@ -219,17 +221,18 @@ const RPCDoctor = () => {
       if (res.status === 429) throw new Error(data.error);
       if (!res.ok) throw new Error(data.error);
       
-      setAuditData(data); 
+      setAuditData(data);
       setAuditCooldown(20);
-      
-      const timer = setInterval(() => { 
-        setAuditCooldown((prev) => { 
-          if (prev <= 1) { 
-            clearInterval(timer); 
-            return 0; 
-          } 
-          return prev - 1; 
-        }); 
+
+      cooldownRef.current = setInterval(() => {
+        setAuditCooldown((prev) => {
+          if (prev <= 1) {
+            clearInterval(cooldownRef.current);
+            cooldownRef.current = null;
+            return 0;
+          }
+          return prev - 1;
+        });
       }, 1000);
 
     } catch (err) { 
