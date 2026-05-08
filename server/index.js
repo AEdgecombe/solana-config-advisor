@@ -34,6 +34,10 @@ const resolveSafeIp = async (host) => {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Render terminates TLS at a single proxy hop, so trust the first forwarded address
+// or express-rate-limit will see the proxy IP for every request and bucket all clients together.
+app.set('trust proxy', 1);
+
 const DEFAULT_ALLOWED_ORIGINS = [
   'https://solana-config-advisor.vercel.app',
   'http://localhost:5173',
