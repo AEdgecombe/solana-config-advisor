@@ -1,21 +1,31 @@
 {
-  "name": "solana-ops-suite-api",
+  "name": "nodex-api",
   "version": "1.0.0",
-  "description": "Backend API for the Solana Validator Ops Suite",
+  "description": "Stateless API gateway for Nodex — Solana validator diagnostics and port auditing.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
     "test": "NODE_ENV=test jest --forceExit"
   },
-  "author": "UP2124153",
-  "license": "ISC",
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AEdgecombe/Nodex.git"
+  },
+  "homepage": "https://github.com/AEdgecombe/Nodex#readme",
+  "bugs": {
+    "url": "https://github.com/AEdgecombe/Nodex/issues"
+  },
+  "author": "Alexander Edgecombe",
+  "license": "MIT",
   "dependencies": {
     "cors": "^2.8.6",
     "dotenv": "^17.4.1",
     "express": "^5.2.1",
-    "express-rate-limit": "^7.5.1",
-    "mongoose": "^9.4.1"
+    "express-rate-limit": "^7.5.1"
   },
   "devDependencies": {
     "jest": "^29.7.0",
