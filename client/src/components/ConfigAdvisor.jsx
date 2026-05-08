@@ -231,14 +231,26 @@ const ConfigAdvisor = () => {
             </div>
             <div>
               <label className={STYLE.inputLabel}>Storage</label>
-              <select 
-                className={STYLE.inputField} 
-                value={formData.storageType} 
+              <select
+                className={STYLE.inputField}
+                value={formData.storageType}
                 onChange={(e) => handleInputChange('storageType', e.target.value)}
               >
                 <option value="nvme">NVMe PCIe Gen4</option>
                 <option value="ssd">SATA SSD</option>
                 <option value="hdd">HDD</option>
+              </select>
+            </div>
+            <div>
+              <label className={STYLE.inputLabel}>Storage Capacity</label>
+              <select
+                className={STYLE.inputField}
+                value={formData.storageSize}
+                onChange={(e) => handleInputChange('storageSize', parseInt(e.target.value, 10))}
+              >
+                <option value="1">1 TB</option>
+                <option value="2">2 TB</option>
+                <option value="4">4 TB</option>
               </select>
             </div>
             <button 
